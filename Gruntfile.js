@@ -71,7 +71,7 @@ module.exports = function(grunt) {
             name: 'Travis Deployment',
             email: 'noreply@travis-ci.org'
           },
-          repo: 'https://' + process.env.GH_TOKEN + '@github.com/repo-owner/travis-ci-connector.git',
+          repo: 'https://' + process.env.GH_TOKEN + '@github.com/tableau-mkt/travis-data-connector.git',
           message: 'Auto-deploy via Travis CI',
           silent: true
         },
