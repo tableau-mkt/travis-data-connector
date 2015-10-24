@@ -32,7 +32,12 @@ var wdcw = window.wdcw || {};
         if (data.hasOwnProperty(key)) {
           $input = $('*[name="' + key + '"]');
           if ($input.length) {
-            $input.val(data[key]).change();
+            if ($input.is(':checkbox')) {
+              $input.attr('checked', !!data[key]).change();
+            }
+            else {
+              $input.val(data[key]).change();
+            }
           }
         }
       }
@@ -280,7 +285,12 @@ var wdcw = window.wdcw || {};
         var $this = $(this);
             name = $this.attr('name');
         if (name) {
-          data[name] = $this.val();
+          if ($this.is(':checkbox')) {
+            data[name] = $this.is(':checked');
+          }
+          else {
+            data[name] = $this.val();
+          }
         }
         return this;
       });
