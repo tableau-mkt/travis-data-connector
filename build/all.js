@@ -15560,13 +15560,16 @@ module.exports = function($, tableau, wdcw) {
    */
   function prefetchApiUrls(path, afterNumber, itemsPerPage) {
     var urlPromises = [],
+        rowLimit = connector.getConnectionData()['Limit'] || 2500,
+        maxPromises,
         urlPromise;
 
-    // Apply defaults.
+    // Apply defaults, calculate max promises to return.
     itemsPerPage = itemsPerPage || 25;
+    maxPromises = (rowLimit - itemsPerPage) / itemsPerPage;
 
     // Generate URL batches.
-    while (afterNumber > 1) {
+    while (afterNumber > 1 && urlPromises.length < maxPromises) {
       urlPromise = new Promise(function urlPromise(resolve, reject) {
         getData(buildApiFrom(path, {number: afterNumber}), function gotData(data) {
           resolve(data);
