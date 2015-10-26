@@ -7,6 +7,8 @@ var module = module || {},
 module.exports = function($, tableau, wdcw) {
   var retriesAttempted = 0,
       maxRetries = 5,
+      untilBuild = 0,
+      defaultItemsPerPage = 25,
       connector;
 
   /**
@@ -34,6 +36,7 @@ module.exports = function($, tableau, wdcw) {
       case tableau.phaseEnum.interactivePhase:
         // Perform set up tasks that relate to when the user will be prompted to
         // enter information interactively.
+        this.setIncrementalExtractColumn('number');
         break;
 
       case tableau.phaseEnum.gatherDataPhase:
@@ -108,7 +111,8 @@ module.exports = function($, tableau, wdcw) {
       type: 'int'
     }, {
       name: 'number',
-      type: 'int'
+      type: 'int',
+      incrementalRefresh: true
     }, {
       name: 'pull_request',
       type: 'bool'
@@ -174,27 +178,60 @@ module.exports = function($, tableau, wdcw) {
     var repoSlug = this.getConnectionData()['RepoSlug'],
         path = 'repos/' + repoSlug + '/builds';
 
+    // If a value is passed in for lastRecord, stash it. It means that Tableau
+    // is attempting an incremental refresh. We'll use the stashed value as a
+    // bound for API requests.
+    if (lastRecord) {
+      untilBuild = Number(lastRecord);
+    }
+
     // Do an initial request to get at the highest build number, then begin to
     // go through all requests.
-    getData(buildApiFrom(path, {number: lastRecord}), function initialCall(data) {
+    getData(buildApiFrom(path, {}), function initialCall(data) {
       var lastBuild = data[data.length - 1],
-          lastBuildNumber = lastBuild ? lastBuild.number : 0,
+          lastBuildNumber = lastBuild ? Number(lastBuild.number) : 0,
           hasMore = lastBuildNumber > 1,
-          processedData = data;
+          isRefreshAndStillHasMore = lastBuildNumber > untilBuild,
+          untilBuildIsInThisPayload = untilBuild >= lastBuildNumber && untilBuild <= lastBuildNumber + defaultItemsPerPage - 1,
+          processedData = data,
+          row;
 
-      if (hasMore) {
+      // The most common case: there's more data to be collected, so we figure
+      // out the URLs to fetch and fetch them.
+      if (hasMore && isRefreshAndStillHasMore) {
         Promise.all(prefetchApiUrls(path, lastBuildNumber)).then(function resolve(values) {
           values.forEach(function (value) {
             processedData = processedData.concat(value);
           });
-          registerData(processedData);
+          // Reverse the processed data so Tableau will send the correct record
+          // number during incremental extract refreshes.
+          registerData(processedData.reverse());
         }, function reject(reason) {
           tableau.abortWithError('Unable to fetch data: ' + reason);
           registerData([]);
         });
       }
-      else {
+      // Less common case: the token Tableau passed in for incremental refresh
+      // is within the initial API request payload. Only append data that isn't
+      // already within the extract.
+      else if (untilBuild && untilBuildIsInThisPayload) {
+        processedData = [];
+        while (data.length) {
+          row = data.pop();
+          if (row.number && Number(row.number) > untilBuild) {
+            processedData.push(row);
+          }
+        }
+        // Note we don't need to reverse this array because we processed the API
+        // payload from the end back (via Array.pop).
         registerData(processedData);
+      }
+      // Least common case: the initial API request returned all records. Just
+      // return them.
+      else {
+        // Note: we reverse the response so Tableau uses the expected value when
+        // attempting incremental extract refreshes.
+        registerData(processedData.reverse());
       }
     });
   };
@@ -239,8 +276,13 @@ module.exports = function($, tableau, wdcw) {
         urlPromise;
 
     // Apply defaults, calculate max promises to return.
-    itemsPerPage = itemsPerPage || 25;
+    itemsPerPage = itemsPerPage || defaultItemsPerPage;
     maxPromises = (rowLimit - itemsPerPage) / itemsPerPage;
+
+    // Account for incremental extract refresh attempts.
+    if (untilBuild) {
+      maxPromises = Math.floor(maxPromises, (afterNumber - untilBuild) / itemsPerPage);
+    }
 
     // Generate URL batches.
     while (afterNumber > 1 && urlPromises.length < maxPromises) {
