@@ -42,17 +42,17 @@
   <div class="container">
     <h1 class="jumbotron-heading">Connect to Travis CI</h1>
     <form>
-      <!--<p class="checkbox">
+      <p class="checkbox">
         <label>
-          <input type="checkbox" value="IsPrivate"> I am connecting to private repository data
+          <input type="checkbox" name="IsPrivate" id="IsPrivate" /> I am connecting to private repository data
         </label>
-      </p>-->
+      </p>
       <p>
         <input class="form-control" type="text" name="RepoSlug" id="RepoSlug" placeholder="Repo Slug (e.g. org/project)" />
         <label class="sr-only" for="RepoSlug">Repo Slug</label>
       </p>
       <p>
-        <input class="form-control" type="password" name="password" id="password" placeholder="Access token" />
+        <input class="form-control" type="password" name="password" id="password" placeholder="Access token" style="display: none;" />
         <label class="sr-only" for="password">Access token</label>
       </p>
       <div>

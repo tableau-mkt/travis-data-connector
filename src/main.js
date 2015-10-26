@@ -6,7 +6,8 @@ var module = module || {},
 
 module.exports = function($, tableau, wdcw) {
   var retriesAttempted = 0,
-      maxRetries = 5;
+      maxRetries = 5,
+      connector;
 
   /**
    * Run during initialization of the web data connector.
@@ -39,6 +40,7 @@ module.exports = function($, tableau, wdcw) {
         // Perform set up tasks that should happen when Tableau is attempting to
         // retrieve data from your connector (the user is not prompted for any
         // information in this phase.
+        connector = this;
         break;
 
       case tableau.phaseEnum.authPhase:
@@ -173,7 +175,7 @@ module.exports = function($, tableau, wdcw) {
         path = 'repos/' + repoSlug + '/builds';
 
     // Do an initial request to get at the highest build number, then begin to
-    // go through all requests in batches of 10.
+    // go through all requests.
     getData(buildApiFrom(path, {number: lastRecord}), function initialCall(data) {
       var lastBuild = data[data.length - 1],
           lastBuildNumber = lastBuild ? lastBuild.number : 0,
@@ -209,8 +211,11 @@ module.exports = function($, tableau, wdcw) {
    *   Options to inform query parameters and paging.
    */
   function buildApiFrom(path, opts) {
+    var isPrivate = connector.getConnectionData()['IsPrivate'],
+        root = isPrivate ? 'https://api.travis-ci.com' : 'https://api.travis-ci.org';
+
     path = opts.number ? path + '?after_number=' + opts.number : path;
-    return 'https://api.travis-ci.com/' + path;
+    return root + '/' + path;
   }
 
   /**
@@ -264,13 +269,19 @@ module.exports = function($, tableau, wdcw) {
    *     reason: A string describing why data collection failed.
    */
   function getData(url, successCallback, failCallback) {
+    var isPrivate = connector.getConnectionData()['IsPrivate'],
+        requestHeaders = {
+          Accept: 'application/vnd.travis-ci.2+json',
+          'User-Agent': 'TableauTravisWebDataConnector/1.0.0'
+        };
+
+    if (isPrivate) {
+      requestHeaders.Authorization = 'token ' + encodeURI(connector.getPassword());
+    }
+
     $.ajax({
       url: url,
-      headers: {
-        Accept: 'application/vnd.travis-ci.2+json',
-        Authorization: 'token ' + encodeURI(tableau.password),
-        'User-Agent': 'TableauTravisWebDataConnector/1.0.0'
-      },
+      headers: requestHeaders,
       success: function dataRetrieved(response) {
         successCallback(response.builds);
       },
