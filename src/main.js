@@ -231,7 +231,6 @@ module.exports = function($, tableau, wdcw) {
       else {
         // Note: we reverse the response so Tableau uses the expected value when
         // attempting incremental extract refreshes.
-        console.log('edge');
         registerData(processedData.reverse());
       }
     });
