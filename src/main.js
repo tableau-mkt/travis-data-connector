@@ -175,7 +175,7 @@ module.exports = function($, tableau, wdcw) {
         path = 'repos/' + repoSlug + '/builds';
 
     // Do an initial request to get at the highest build number, then begin to
-    // go through all requests in batches of 10.
+    // go through all requests.
     getData(buildApiFrom(path, {number: lastRecord}), function initialCall(data) {
       var lastBuild = data[data.length - 1],
           lastBuildNumber = lastBuild ? lastBuild.number : 0,

@@ -47,31 +47,55 @@ describe('travis-ci-connector:columnHeaders', function describesConnectorColumnH
 
   beforeEach(function connectorColumnHeadersBeforeEach() {
     registerHeaders = sinon.spy();
-    // Here's how you might stub or mock various jQuery methods.
-    sinon.spy(jQuery, 'ajax');
-    sinon.spy(jQuery, 'getJSON');
-    wdcw = wdcwFactory(jQuery, {}, {});
   });
 
-  afterEach(function connectorColumnHeadersAfterEach() {
-    // Don't forget to restore their original implementations after each test.
-    jQuery.ajax.restore();
-    jQuery.getJSON.restore();
-  });
+  it('should register expected columns', function connectorColumnHeadersTestHere() {
+    var expectedColumns = [{
+      name: 'id',
+      type: 'int'
+    }, {
+      name: 'repository_id',
+      type: 'int'
+    }, {
+      name: 'commit_id',
+      type: 'int'
+    }, {
+      name: 'number',
+      type: 'int'
+    }, {
+      name: 'pull_request',
+      type: 'bool'
+    }, {
+      name: 'pull_request_title',
+      type: 'string'
+    }, {
+      name: 'pull_request_number',
+      type: 'int'
+    }, {
+      name: 'state',
+      type: 'string'
+    }, {
+      name: 'started_at',
+      type: 'datetime'
+    }, {
+      name: 'finished_at',
+      type: 'datetime'
+    }, {
+      name: 'duration',
+      type: 'int'
+    }];
 
-  // This test is not very meaningful. You should write actual test logic here
-  // and/or in new cases below.
-  it('should be tested here', function connectorColumnHeadersTestHere() {
+    // Call the columnHeaders method.
     wdcw.columnHeaders.call(connector, registerHeaders);
 
-    assert(registerHeaders.called || jQuery.ajax.called || jQuery.getJSON.called);
-    if (registerHeaders.called) {
-      assert(Array.isArray(registerHeaders.getCall(0).args[0]));
-    }
+    // Assert that the registerHeaders method was called with expected columns.
+    assert(registerHeaders.called);
+    assert.deepEqual(expectedColumns, registerHeaders.getCall(0).args[0]);
   });
 
 });
 
+/* @todo write meaningful tests for data retrieval.
 describe('travis-ci-connector:tableData', function describesConnectorTableData() {
   var registerData;
 
@@ -98,7 +122,7 @@ describe('travis-ci-connector:tableData', function describesConnectorTableData()
     }
   });
 
-});
+});*/
 
 describe('travis-ci-connector:teardown', function describesConnectorTearDown() {
   var tearDownComplete;
