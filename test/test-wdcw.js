@@ -61,7 +61,8 @@ describe('travis-ci-connector:columnHeaders', function describesConnectorColumnH
       type: 'int'
     }, {
       name: 'number',
-      type: 'int'
+      type: 'int',
+      incrementalRefresh: true
     }, {
       name: 'pull_request',
       type: 'bool'
