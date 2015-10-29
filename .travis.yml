@@ -2,10 +2,6 @@ language: node_js
 node_js:
 - '0.12'
 
-env:
-  global:
-    secure: AeN77Oqn+P5POAzwccpEOnJkZ2GRDTdEmxV+yRgemB3bKpeqWw4AOuCupX8bjlohN4yAHQoCGuzUgtupEcUY//FxErq148PVA76eHQC9rW1oDxBoo5K/1ldZb0XT2bY7XDOmIbvj6bar0wQeTHDluu7wCXihBvYZnNSq1WAaWQ3Jj3zBfcIiwkawg+Qc9SP1mLKa6DsQ9vkBdzoYLsJGs3NkIiPJL7csRZYoU5fEMD7J5Hi2/5Yeuoaq0pkWaibL1AYrf+TgqDFmJcdnXVvgHsuODI3V2EUGGzbo2gV3JjKT0+xyjbWBABmF1gZmyqLFosugTgaoVH9DNv95EhqBNcOpgmpsnotSA6SE7zTzjAaxEn8HfooxFZh3280t3prQuTc2rCDum+aM8BYBeMc8cjhl37VzVD224rfUmMM8GqYOnjRMztPsTcRyXMMCg7BkHod9zH1L0dQrpOZL2wPZ3YSHdcsZ7dGwBLnywxKp56VnT34nnOuKtdgeMx9my9FEiNix+H3YO9Ka8bK+Moh5DYiwULwxV97eJ6BV6VGaMQXGetLptz49BDLtp02G2TTcCJ+BVjCoRXwdxeaG/Gvek6hcuykcGyeXM1bun9uAVRjiCWDdcf6CuVPyBA8XXhBOqFKEKE/0M+U5AOtpfhZo+UcAmYd1VaQ6eOwzBWlcfS0=
-
 before_install:
 - npm install -g grunt-cli
 
@@ -14,3 +10,10 @@ script:
 
 after_success:
 - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && grunt autoDeploy
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: "YNJCKXZPbRvIEUGvgxN2QdHLguOslelkCp5hqjH3fGlyrD0f3x3/YMDCeRKyVjPdUPIw2W6JK/vPEsA/Yb68z6MB1WX1Vy2PK6nrLVVnVr+Sn41TheJ5t0cJfArwXcc1yF1zYEtmnEb4a8KLCabXCpryz8AA74Ce911urcPXyryxjxCTopLYdjcQ/JKrnhnc/LYFllofwCZelQROcgjCkLNLn3VtlI6gVyginXTaQEib2Wmr8p8YGznbjohd5MVXRxf4I4GNTBMFZ7OOeMRIhuNWTxcofQ8gzztnFjfxM0xNaY/Uqq4yTHdUGtX6a1TAg9EpjQCPIqovaozhZdpFjaoKM2ygBajjtvX7AO29QD+BHkSt/LzvbD+QI9mJYK9qD2A8MqVSevfMe1BIdCekoKsri+Iy78TeHJG5w9bFAiO7MPOuy15YfbT44qqvoF6ZJTYPWtLm5BGNb3p9+o27NlG72OOWsZAB++u6m697Q344Er/Np14PAz4O7zYduT5OVdiZGtdtyXcRkXb3hQKcPHoWf1lDwjhWbdG2oBRwRVcJ/xX28gYocH+QK+Tj58n3/jkqAS57as6JxpR6vyKtmEX+x6d2J0Db/E34m0gGmmxp1xyNfB8QAACPLw98e7nh5yoXOMetxnuOAXYWNxVL6PUMPCZcCMYiAe2Ft++Vt8U="
+  app:
+    master: travis-web-data-connector
