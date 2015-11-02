@@ -9,11 +9,14 @@ var assert = require('assert'),
     wdcw;
 
 describe('travis-ci-connector:setup', function describesConnectorSetup() {
-  var setUpComplete;
+  var setUpComplete,
+      URI;
 
   beforeEach(function connectorSetupBeforeEach() {
     setUpComplete = sinon.spy();
-    wdcw = wdcwFactory(jQuery, tableau, {});
+    URI = function() {return {hasQuery: sinon.spy()}};
+    wdcw = wdcwFactory(jQuery, tableau, {}, URI);
+    wdcw._setUpInteractivePhase = sinon.spy();
   });
 
   it('calls completion callback during interactive phase', function connectorSetupInteractive() {
@@ -22,6 +25,11 @@ describe('travis-ci-connector:setup', function describesConnectorSetup() {
       wdcw.setup.call(connector, tableau.phaseEnum.interactivePhase, setUpComplete);
       assert(setUpComplete.called);
     }
+  });
+
+  it('calls underlying interactive phase setup code', function connectorSetupInteractiveActual() {
+    wdcw.setup.call(connector, tableau.phaseEnum.interactivePhase, setUpComplete);
+    assert(wdcw._setUpInteractivePhase.called);
   });
 
   it('calls completion callback during auth phase', function connectorSetupAuth() {
