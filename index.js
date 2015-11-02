@@ -3,6 +3,7 @@
 var express = require('express'),
     request = require('request'),
     env = require('node-env-file'),
+    sha1 = require('sha1'),
     app = express(),
     port;
 
@@ -25,12 +26,28 @@ app.get('/', function (req, res) {
 
 // A redirect to initialize GitHub oauth flow.
 app.get('/authorize', function (req, res) {
-  var redirectTo = 'https://github.com/login/oauth/authorize' +
+  var clientIP = req.ips.join('|'),
+      redirectTo = 'https://github.com/login/oauth/authorize' +
         '?client_id=' + process.env.CLIENTID +
         '&redirect_uri=' + encodeURIComponent(process.env.REDIRECTURI) +
+        '&state=' + sha1(clientIP + process.env.SALT) +
         '&scope=public_repo,repo';
 
   res.redirect(redirectTo);
+});
+
+// Validates a given GitHub oauth state value.
+app.get('/validate_state', function (req, res) {
+  var state = req.query.state,
+      clientIP = req.ips.join('|'),
+      expectedState = sha1(clientIP + process.env.SALT);
+
+  if (state === expectedState) {
+    res.sendStatus(200);
+  }
+  else {
+    res.sendStatus(403);
+  }
 });
 
 // Create an endpoint to manage oauth bits.
@@ -74,7 +91,7 @@ app.post('/travis_token', function (req, res) {
           res.send(tBody);
         }
         else {
-          res.sendStatus(500)
+          res.sendStatus(500);
         }
       });
     }

@@ -68,38 +68,49 @@ module.exports = function($, tableau, wdcw) {
   wdcw._setUpInteractivePhase = function setUpInteractivePhase() {
     var $modal = $('div.modal'),
         $form = $('form'),
-        uri;
-
-    // Listen for oauth flow indicators from GitHub.
-    uri = new URI(window.location.href);
-    if (uri.hasQuery('code')) {
-      // Pop a modal indicating that we're attempting to authenticate.
-      $modal.modal('show');
-
-      // Attempt to negotiate with GitHub to pull a Travis CI auth token.
-      $.ajax({
-        url: '/travis_token?isPrivate=yes&code=' + uri.search(true).code,
-        type: 'POST',
-        success: function dataRetrieved(response) {
-          // Set the connection password to the returned token value.
-          connector.setPassword(response.access_token);
-          $('#password').val(response.access_token).change();
-
-          // Push a window history change so Tableau remembers the bare URL
-          // as the connection location, not the one that includes a "code"
-          // param as returned by GitHub during initial authentication.
-          window.history.pushState({}, '', uri.protocol() + '://' + uri.authority());
-
-          // Hide the "attempting auth" modal; trigger connection start.
-          $modal.modal('hide');
-          $('form').submit();
-        },
-        error: function badAuthHandshake() {
+        recoverFromError = function recoverFromError() {
           $modal.find('h3').text('There was a problem authenticating.');
           setTimeout(function () {
             $modal.modal('hide');
           }, 2000);
-        }
+        },
+        params,
+        uri;
+
+    // Listen for oauth flow indicators from GitHub.
+    uri = new URI(window.location.href);
+    if (uri.hasQuery('code') && uri.hasQuery('state')) {
+      params = uri.search(true);
+
+      // Pop a modal indicating that we're attempting to authenticate.
+      $modal.modal('show');
+
+      // Validate the provided state.
+      $.ajax({
+        url: '/validate_state?state=' + params.state,
+        success: function stateValidated() {
+          // Attempt to negotiate with GitHub to pull a Travis CI auth token.
+          $.ajax({
+            url: '/travis_token?isPrivate=yes&code=' + params.code,
+            type: 'POST',
+            success: function dataRetrieved(response) {
+              // Set the connection password to the returned token value.
+              connector.setPassword(response.access_token);
+              $('#password').val(response.access_token).change();
+
+              // Push a window history change so Tableau remembers the bare URL
+              // as the connection location, not the one that includes a "code"
+              // param as returned by GitHub during initial authentication.
+              window.history.pushState({}, '', uri.protocol() + '://' + uri.authority());
+
+              // Hide the "attempting auth" modal; trigger connection start.
+              $modal.modal('hide');
+              $('form').submit();
+            },
+            error: recoverFromError
+          });
+        },
+        error: recoverFromError
       });
     }
 
