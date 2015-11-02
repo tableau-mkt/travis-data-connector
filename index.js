@@ -5,11 +5,12 @@ var express = require('express'),
     env = require('node-env-file'),
     sha1 = require('sha1'),
     app = express(),
-    port;
+    port = process.env.PORT || 9001;
 
 // For local development, load in environment variables.
-env(__dirname + '/.env');
-port = process.env.PORT || 9001;
+if (process.env.NODE_ENV !== 'production') {
+  env(__dirname + '/.env');
+}
 
 if (!process.env.CLIENTID || !process.env.CLIENTSECRET) {
   console.error('Please ensure GitHub oauth CLIENTID and CLIENTSECRET environment variables are set.');
