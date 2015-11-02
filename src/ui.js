@@ -1,12 +1,11 @@
 (function ($) {
-  $('#IsPrivate').on('change', function() {
-    var $password = $('#password');
-
+  var $submit = $('input[type="submit"]');
+  $('#IsPrivate').on('change', function () {
     if ($(this).is(':checked')) {
-      $password.show();
+      $submit.val('Sign in with GitHub & Connect');
     }
     else {
-      $password.hide();
+      $submit.val('Connect');
     }
   });
 })(jQuery);

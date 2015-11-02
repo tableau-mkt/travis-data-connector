@@ -30,20 +30,23 @@ module.exports = function($, tableau, wdcw) {
    *   performed.
    */
   wdcw.setup = function setup(phase, setUpComplete) {
+    connector = this;
+
     // You may need to perform set up or other initialization tasks at various
     // points in the data connector flow. You can do so here.
     switch (phase) {
       case tableau.phaseEnum.interactivePhase:
-        // Perform set up tasks that relate to when the user will be prompted to
-        // enter information interactively.
-        this.setIncrementalExtractColumn('number');
+        // Set the build number as the incremental extract column.
+        connector.setIncrementalExtractColumn('number');
+
+        // Perform actual interactive phase stuff.
+        wdcw._setUpInteractivePhase();
         break;
 
       case tableau.phaseEnum.gatherDataPhase:
         // Perform set up tasks that should happen when Tableau is attempting to
         // retrieve data from your connector (the user is not prompted for any
         // information in this phase.
-        connector = this;
         break;
 
       case tableau.phaseEnum.authPhase:
@@ -56,6 +59,87 @@ module.exports = function($, tableau, wdcw) {
     // This can be especially useful when initialization tasks are asynchronous
     // in nature.
     setUpComplete();
+  };
+
+  /**
+   * Actual interactive phase setup code. Mostly separated for testability, but
+   * tests still TBD...
+   */
+  wdcw._setUpInteractivePhase = function setUpInteractivePhase() {
+    var $modal = $('div.modal'),
+        $form = $('form'),
+        recoverFromError = function recoverFromError() {
+          $modal.find('h3').text('There was a problem authenticating.');
+          setTimeout(function () {
+            $modal.modal('hide');
+          }, 2000);
+        },
+        params,
+        uri;
+
+    // Listen for oauth flow indicators from GitHub.
+    uri = new URI(window.location.href);
+    if (uri.hasQuery('code') && uri.hasQuery('state')) {
+      params = uri.search(true);
+
+      // Pop a modal indicating that we're attempting to authenticate.
+      $modal.modal('show');
+
+      // Validate the provided state.
+      $.ajax({
+        url: '/validate_state?state=' + params.state,
+        success: function stateValidated() {
+          // Attempt to negotiate with GitHub to pull a Travis CI auth token.
+          $.ajax({
+            url: '/travis_token?isPrivate=yes&code=' + params.code,
+            type: 'POST',
+            success: function dataRetrieved(response) {
+              // Set the connection password to the returned token value.
+              connector.setPassword(response.access_token);
+              $('#password').val(response.access_token).change();
+
+              // Push a window history change so Tableau remembers the bare URL
+              // as the connection location, not the one that includes a "code"
+              // param as returned by GitHub during initial authentication.
+              window.history.pushState({}, '', uri.protocol() + '://' + uri.authority());
+
+              // Hide the "attempting auth" modal; trigger connection start.
+              $modal.modal('hide');
+              $('form').submit();
+            },
+            error: recoverFromError
+          });
+        },
+        error: recoverFromError
+      });
+    }
+
+    // Add a handler to detect the need for and initiate oauth flow.
+    $form.submit(function (event) {
+      // If connection is attempted for a private repo and we have no token
+      // on hand, then we need to initiate our oauth flow to get it.
+      if ($('#IsPrivate').is(':checked') && !connector.getPassword()) {
+        // Prevent the WDCW handler from firing.
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        // Save off all existing connection details so that they persist
+        // after GitHub redirects back post-authentication.
+        connector.setConnectionData({
+          IsPrivate: true,
+          RepoSlug: $('#RepoSlug').val(),
+          Limit: $('#Limit').val()
+        });
+
+        // Send the user to the GitHub authentication page (for oauth).
+        window.location = '/authorize';
+      }
+    });
+
+    // Reverse submit bindings on the $form element so our handler above is
+    // triggered before the main WDCW handler, allowing us to prevent it.
+    $._data($form[0], 'events').submit.reverse();
   };
 
   /**
