@@ -2,7 +2,7 @@
   "name": "travis-ci-wdc",
   "description": "Use this Tableau Web Data Connector to analyze your public and private Travis CI builds.",
   "homepage": "https://travis-web-data-connector.herokuapp.com/",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "keywords": [
     "tableau-wdc"
   ],
