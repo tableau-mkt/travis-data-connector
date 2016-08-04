@@ -1,0 +1,96 @@
+{
+  "defaultAlias": "Jobs",
+  "description": "Travis CI Build Jobs",
+  "id": "jobs",
+  "dependsOn": ["builds"],
+  "columns": [
+    {
+      "id": "id",
+      "dataType": "int",
+      "alias": "Job ID",
+      "description": "An identifier used by Travis CI to uniquely identify a single build job among all jobs on the platform.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "build_id",
+      "dataType": "int",
+      "alias": "Build ID",
+      "description": "An identifier used by Travis CI to uniquely identify a single build among all builds on the platform.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "repository_id",
+      "dataType": "int",
+      "alias": "Repository ID",
+      "description": "Unique identifier representing the GitHub repository for which the build ran.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "commit_id",
+      "dataType": "int",
+      "alias": "Commit ID",
+      "description": "Unique identifier representing the git commit for which the build ran.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "log_id",
+      "dataType": "int",
+      "alias": "Log ID",
+      "description": "Unique identifier representing the log generated during the build.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "number",
+      "dataType": "int",
+      "alias": "Job Number",
+      "description": "Incrementing number representing a single job on a Travis CI build.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "state",
+      "dataType": "string",
+      "alias": "Job State",
+      "description": "State of the job.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "started_at",
+      "dataType": "datetime",
+      "alias": "Started At",
+      "description": "Date/time when the build was started.",
+      "columnRole": "dimension",
+      "columnType": "continuous"
+    },
+    {
+      "id": "finished_at",
+      "dataType": "datetime",
+      "alias": "Finished At",
+      "description": "Date/time when the build completed.",
+      "columnRole": "dimension",
+      "columnType": "continuous"
+    },
+    {
+      "id": "queue",
+      "dataType": "string",
+      "alias": "Job Queue",
+      "description": "",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "allow_failure",
+      "dataType": "bool",
+      "alias": "Failure Allowed",
+      "description": "Whether or not job state influences build state",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    }
+  ]
+}

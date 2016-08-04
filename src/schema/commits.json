@@ -1,0 +1,88 @@
+{
+  "defaultAlias": "Commits",
+  "description": "Git commits associated with Travis CI builds.",
+  "id": "commits",
+  "dependsOn": ["builds"],
+  "columns": [
+    {
+      "id": "id",
+      "dataType": "int",
+      "alias": "Commit ID",
+      "description": "An identifier used by Travis CI to uniquely identify a single commit among all commits on the platform.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "sha",
+      "dataType": "string",
+      "alias": "Commit SHA",
+      "description": "The git commit sha that triggered the build.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "branch",
+      "dataType": "string",
+      "alias": "Branch",
+      "description": "The branch the commit is on.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "message",
+      "dataType": "string",
+      "alias": "Commit Message",
+      "description": "The git commit message.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "committed_at",
+      "dataType": "datetime",
+      "alias": "Committed At",
+      "description": "Date/time when the change was commited.",
+      "columnRole": "dimension",
+      "columnType": "continuous"
+    },
+    {
+      "id": "author_name",
+      "dataType": "string",
+      "alias": "Author Name",
+      "description": "The name of the person who authored the commit.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "author_email",
+      "dataType": "string",
+      "alias": "Author E-mail",
+      "description": "E-mail address of the person who authored the commit.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "committer_name",
+      "dataType": "string",
+      "alias": "Committer Name",
+      "description": "The name of the person who committed the change.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "committer_email",
+      "dataType": "string",
+      "alias": "Committer E-mail",
+      "description": "E-mail address of the person who committed the change.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "compare_url",
+      "dataType": "string",
+      "alias": "Compare URL",
+      "description": "Link to the git diff on GitHub",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    }
+  ]
+}

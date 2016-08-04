@@ -1,0 +1,95 @@
+{
+  "defaultAlias": "Builds",
+  "description": "Travis CI Builds",
+  "id": "builds",
+  "incrementColumnId": "number",
+  "columns": [
+    {
+      "id": "id",
+      "dataType": "int",
+      "alias": "Build ID",
+      "description": "An identifier used by Travis CI to uniquely identify a single build among all builds on the platform.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "repository_id",
+      "dataType": "int",
+      "alias": "Repository ID",
+      "description": "Unique identifier representing the GitHub repository for which the build ran.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "commit_id",
+      "dataType": "int",
+      "alias": "Commit ID",
+      "description": "Unique identifier representing the git commit for which the build ran.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "number",
+      "dataType": "int",
+      "alias": "Build Number",
+      "description": "Incrementing number representing a single build on Travis CI.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "pull_request",
+      "dataType": "bool",
+      "alias": "Is Pull Request",
+      "description": "Whether or not the build was triggered on pull request (rather than on commit)."
+    },
+    {
+      "id": "pull_request_title",
+      "dataType": "string",
+      "alias": "Pull Request Title",
+      "description": "The name of the pull request that triggered the build.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "pull_request_number",
+      "dataType": "int",
+      "alias": "Pull Request Number",
+      "description": "The GitHub pull request number that triggered the build.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "state",
+      "dataType": "string",
+      "alias": "Build State",
+      "description": "State of the build.",
+      "columnRole": "dimension",
+      "columnType": "discrete"
+    },
+    {
+      "id": "started_at",
+      "dataType": "datetime",
+      "alias": "Started At",
+      "description": "Date/time when the build was started.",
+      "columnRole": "dimension",
+      "columnType": "continuous"
+    },
+    {
+      "id": "finished_at",
+      "dataType": "datetime",
+      "alias": "Finished At",
+      "description": "Date/time when the build completed.",
+      "columnRole": "dimension",
+      "columnType": "continuous"
+    },
+    {
+      "id": "duration",
+      "dataType": "int",
+      "alias": "Build Duration",
+      "description": "An identifier used by Travis CI to uniquely identify a single build among all builds on the platform.",
+      "columnRole": "measure",
+      "columnType": "continuous",
+      "aggType": "avg"
+    }
+  ]
+}
