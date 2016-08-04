@@ -1,6 +1,6 @@
 {
   "name": "travis-ci-wdc",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "dependencies": {
     "bootstrap": "~4.0.0",
     "es5-shim": "~4.1.15",

@@ -3,61 +3,67 @@
 var assert = require('assert'),
     sinon = require('sinon'),
     jQuery = require('../bower_components/jquery/dist/jquery.js')(require('jsdom').jsdom().parentWindow),
-    wdcwFactory = require('../src/main.js'),
+    wrapperFactory = require('../src/main.js'),
     tableau = require('./util/tableau.js'),
     connector = require('./util/connector.js'),
-    wdcw;
+    wrapper;
 
 describe('travis-ci-connector:setup', function describesConnectorSetup() {
-  var setUpComplete,
-      URI;
+  var URI;
 
   beforeEach(function connectorSetupBeforeEach() {
-    setUpComplete = sinon.spy();
     URI = function() {return {hasQuery: sinon.spy()}};
-    wdcw = wdcwFactory(jQuery, tableau, {}, URI);
-    wdcw._setUpInteractivePhase = sinon.spy();
+    wrapper = wrapperFactory;
+    wrapper._setUpInteractivePhase = sinon.spy();
   });
 
-  it('calls completion callback during interactive phase', function connectorSetupInteractive() {
+  it('calls completion callback during interactive phase', function connectorSetupInteractive(done) {
     // If available, ensure the callback is called during interaction.
-    if (wdcw.hasOwnProperty('setup')) {
-      wdcw.setup.call(connector, tableau.phaseEnum.interactivePhase, setUpComplete);
-      assert(setUpComplete.called);
+    if (wrapper.hasOwnProperty('setup')) {
+      wrapper.setup.call(connector, tableau.phaseEnum.interactivePhase)
+        .then(done);
+    }
+    else {
+      done();
     }
   });
 
-  it('calls underlying interactive phase setup code', function connectorSetupInteractiveActual() {
-    wdcw.setup.call(connector, tableau.phaseEnum.interactivePhase, setUpComplete);
-    assert(wdcw._setUpInteractivePhase.called);
+  it('calls underlying interactive phase setup code', function connectorSetupInteractiveActual(done) {
+    wrapper.setup.call(connector, tableau.phaseEnum.interactivePhase)
+      .then(function () {
+        assert(wrapper._setUpInteractivePhase.called);
+        done();
+      });
   });
 
-  it('calls completion callback during auth phase', function connectorSetupAuth() {
+  it('calls completion callback during auth phase', function connectorSetupAuth(done) {
     // If available, ensure the callback is called during authentication.
-    if (wdcw.hasOwnProperty('setup')) {
-      wdcw.setup.call(connector, tableau.phaseEnum.authPhase, setUpComplete);
-      assert(setUpComplete.called);
+    if (wrapper.hasOwnProperty('setup')) {
+      wrapper.setup.call(connector, tableau.phaseEnum.authPhase)
+        .then(done);
+    }
+    else {
+      done();
     }
   });
 
-  it('calls completion callback during data gathering phase', function connectorSetupData() {
+  it('calls completion callback during data gathering phase', function connectorSetupData(done) {
     // If available, ensure the callback is called during data gathering.
-    if (wdcw.hasOwnProperty('setup')) {
-      wdcw.setup.call(connector, tableau.phaseEnum.gatherDataPhase, setUpComplete);
-      assert(setUpComplete.called);
+    if (wrapper.hasOwnProperty('setup')) {
+      wrapper.setup.call(connector, tableau.phaseEnum.gatherDataPhase)
+        .then(done);
+    }
+    else {
+      done();
     }
   });
 
 });
 
+/* @todo write meaningful tests for schema retrieval.
 describe('travis-ci-connector:columnHeaders', function describesConnectorColumnHeaders() {
-  var registerHeaders;
 
-  beforeEach(function connectorColumnHeadersBeforeEach() {
-    registerHeaders = sinon.spy();
-  });
-
-  it('should register expected columns', function connectorColumnHeadersTestHere() {
+  it('should register expected columns', function connectorColumnHeadersTestHere(done) {
     var expectedColumns = [{
       name: 'id',
       type: 'int'
@@ -94,15 +100,15 @@ describe('travis-ci-connector:columnHeaders', function describesConnectorColumnH
       type: 'int'
     }];
 
-    // Call the columnHeaders method.
-    wdcw.columnHeaders.call(connector, registerHeaders);
-
-    // Assert that the registerHeaders method was called with expected columns.
-    assert(registerHeaders.called);
-    assert.deepEqual(expectedColumns, registerHeaders.getCall(0).args[0]);
+    // Call the schema method.
+    wrapper.schema.call(connector)
+      .catch(function (schema) {
+        done();
+      })
+    done();
   });
 
-});
+});*/
 
 /* @todo write meaningful tests for data retrieval.
 describe('travis-ci-connector:tableData', function describesConnectorTableData() {
@@ -134,18 +140,19 @@ describe('travis-ci-connector:tableData', function describesConnectorTableData()
 });*/
 
 describe('travis-ci-connector:teardown', function describesConnectorTearDown() {
-  var tearDownComplete;
 
   beforeEach(function connectorTearDownBeforeEach() {
-    tearDownComplete = sinon.spy();
-    wdcw = wdcwFactory(jQuery, {}, {});
+    wrapper = wrapperFactory;
   });
 
-  it('calls teardown completion callback', function connectorTearDown() {
+  it('calls teardown completion callback', function connectorTearDown(done) {
     // If available, ensure the completion callback is always called.
-    if (wdcw.hasOwnProperty('teardown')) {
-      wdcw.teardown.call(connector, tearDownComplete);
-      assert(tearDownComplete.called);
+    if (wrapper.hasOwnProperty('teardown')) {
+      wrapper.teardown.call(connector)
+        .then(done);
+    }
+    else {
+      done();
     }
   });
 

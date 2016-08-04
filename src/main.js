@@ -2,9 +2,10 @@ var module = module || {},
     window = window || {},
     jQuery = jQuery || {},
     Q = Q || {},
-    tableau = tableau || {};
+    tableau = tableau || {},
+    wdcw = wdcw || function (config) {return config;};
 
-module.exports = (function($, Q, tableau) {
+module.exports = (function($, Q, tableau, wdcw) {
   var retriesAttempted = 0,
       maxRetries = 5,
       untilBuild = 0,
@@ -40,18 +41,18 @@ module.exports = (function($, Q, tableau) {
     // You may need to perform set up or other initialization tasks at various
     // points in the data connector flow. You can do so here.
     switch (phase) {
-      case tableau.phaseEnum.interactivePhase:
+      case 'interactive':
         // Perform actual interactive phase stuff.
         config._setUpInteractivePhase();
         break;
 
-      case tableau.phaseEnum.gatherDataPhase:
+      case 'gatherData':
         // Perform set up tasks that should happen when Tableau is attempting to
         // retrieve data from your connector (the user is not prompted for any
         // information in this phase.
         break;
 
-      case tableau.phaseEnum.authPhase:
+      case 'auth':
         // Perform set up tasks that should happen when Tableau is attempting to
         // refresh OAuth authentication tokens.
         break;
@@ -466,4 +467,4 @@ module.exports = (function($, Q, tableau) {
   wrapper = wdcw(config);
 
   return config;
-})(jQuery, Q, tableau);
+})(jQuery, Q, tableau, wdcw);
